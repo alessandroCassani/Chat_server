@@ -38,6 +38,9 @@ def handle_client(conn: socket.socket, addr):
 
             if msg.msg.lower() == "end":
                 break
+            
+            if msg.msg == '':
+                msg.msg = 'empty string'
 
             receiver_conn = CLIENTS.get(msg.to)
             if receiver_conn:
