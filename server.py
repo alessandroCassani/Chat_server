@@ -25,26 +25,32 @@ def handle_client(conn: socket.socket, addr):
     global LAST_ID
     id = LAST_ID
     LAST_ID += 1
+    CLIENTS[id] = conn
 
-    CLIENTS[id] = (conn, addr)
-    with conn:
+    try:
         handshake = FastHandshake(id=id, error=False)
         send_message(conn, handshake)
-        print(f"Connected by #{id} {addr}")
+        print(f"Client #{id} connected from {addr}")
 
         while True:
             msg = receive_message(conn, Message)
-            print(f"Received: {msg.msg} from {msg.fr} to {msg.to}")
-            if msg.msg == "end":
+            print(f"Message from {msg.fr} to {msg.to}: {msg.msg}")
+
+            if msg.msg.lower() == "end":
                 break
-            
-            id_client_receiver = msg.to
-            if CLIENTS.get(id_client_receiver):
-                (receiver_connection,receiver_addr) = CLIENTS.get(id_client_receiver)
-                send_message(receiver_connection, msg)
-                
-        print(f"Closing connection to #{id} {addr}")
-        CLIENTS.pop(id)
+
+            receiver_conn = CLIENTS.get(msg.to)
+            if receiver_conn:
+                send_message(receiver_conn, msg)
+            else:
+                print(f"Client #{msg.to} does not exist. Dropping message.")
+
+    except Exception as e:
+        print(f"Error handling client #{id}: {e}")
+    finally:
+        print(f"Closing connection to client #{id}")
+        CLIENTS.pop(id, None)
+        conn.close()
 
 
 def loop_main(port):
