@@ -20,14 +20,19 @@ def main():
     host = None
     port = None
     try:
-        if len(argv) > 3:
+        if len(argv) == 2:
+            host = host or "127.0.0.1"
+            port = 8080
+        elif len(argv) == 3:
+            host = argv[1]
+            port = int(argv[2])
+            new_id = None
+        elif len(argv) == 4:
             host = argv[1]
             port = int(argv[2])
             new_id = int(argv[3])
-        elif len(argv) > 1:
-            port = int(argv[1])
         else:
-            raise ValueError
+            raise ValueError("Numero di argomenti non valido")
     except:
         host = host or "127.0.0.1"
         port = 8080
