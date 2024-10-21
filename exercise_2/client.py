@@ -21,6 +21,7 @@ def main():
     port = None
     try:
         if len(argv) == 2:
+            new_id = int(argv[1])
             host = host or "127.0.0.1"
             port = 8080
         elif len(argv) == 3:
@@ -53,11 +54,11 @@ def main():
         
         if handshake.change_id:
             print('new id accepted!')
-            print(f"we are client #{handshake.change_id}")
-            id = handshake.change_id
+            print(f"we are client #{handshake.id}")
         else:
             print('id autonoumously created')
-            id = handshake.id
+        
+        id = handshake.id
             
         if handshake.error:
             print(f"Handshake failed")
