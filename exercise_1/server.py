@@ -1,7 +1,7 @@
 import socket
 from sys import argv
 from threading import Thread
-from template_pb2 import Message, FastHandshake
+from exercise_1.template_pb2 import Message, FastHandshake
 
 CLIENTS = {}
 LAST_ID = 0

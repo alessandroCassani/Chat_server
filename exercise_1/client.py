@@ -1,6 +1,6 @@
 import socket
 from sys import argv
-from template_pb2 import Message, FastHandshake
+from exercise_1.template_pb2 import Message, FastHandshake
 from threading import Thread
 
 
