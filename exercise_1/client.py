@@ -1,6 +1,7 @@
 import socket
 from sys import argv
-from template_pb2 import Message, FastHandshake
+from exercise_1.template_pb2 import Message, FastHandshake
+from threading import Thread
 
 
 def send_message(conn, m):
@@ -44,21 +45,34 @@ def main():
         print(f"we are client #{handshake.id}")
         id = handshake.id
 
+        Thread(target=handle_incoming_messages,args=(s,), daemon=True).start()
         while True:
             try:
-                data = input("Enter a message: ")
+                data = input("Enter a message: \n")
+                data_chunked = data.split(' ', 1)
+                receiver_id = int(data_chunked[0])
+                message = data_chunked[1]
             except:
-                data = "end"
-            msg = Message(fr=id, to=id, msg=data)
+                error = -1
+                message = "end"
+                msg = Message(fr=id, to=error, msg=message)
+                
+            msg = Message(fr=id, to=receiver_id, msg=message)
             send_message(s, msg)
-            if data == "end":
+            
+            if message == "end":
                 break
-            msg = receive_message(s, Message)
-            print(f"Received: {msg.msg} from {msg.fr} to {msg.to}")
-            if msg.msg == "end":
-                break
+        
         print("Closing connection")
 
 
+def handle_incoming_messages(conn):
+    print('waiting for messages...')
+    while True:
+        msg = receive_message(conn, Message)
+        print(f"New message arrived: {msg.msg}")
+
 if __name__ == "__main__":
     main()
+
+
