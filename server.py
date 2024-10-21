@@ -39,9 +39,9 @@ def handle_client(conn: socket.socket, addr):
                 break
             
             id_client_receiver = msg.to
-            (receiver_connection,receiver_addr) = CLIENTS.get(id_client_receiver)
-            if receiver_connection:
-                send_message(conn, msg)
+            if CLIENTS.get(id_client_receiver):
+                (receiver_connection,receiver_addr) = CLIENTS.get(id_client_receiver)
+                send_message(receiver_connection, msg)
                 
         print(f"Closing connection to #{id} {addr}")
         CLIENTS.pop(id)

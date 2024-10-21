@@ -45,28 +45,30 @@ def main():
         print(f"we are client #{handshake.id}")
         id = handshake.id
 
+        Thread(target=handle_incoming_messages,args=(s,), daemon=True).start()
         while True:
-            Thread(target=handle_incoming_messages,args=(s,), daemon=True).start()
             try:
-                data = input("Enter a message: ")
-                receiver_id = int(input('insert receiver id: '))
+                data = input("Enter a message: \n")
+                parts = data.split(' ', 1)
+                receiver_id = int(parts[0])
+                message = parts[1]
             except:
-                data = "end"
+                message = "end"
                 
-            msg = Message(fr=id, to=receiver_id, msg=data)
+            msg = Message(fr=id, to=receiver_id, msg=message)
             send_message(s, msg)
             
-            if data == "end":
+            if message == "end":
                 break
         
         print("Closing connection")
 
 
 def handle_incoming_messages(conn):
+    print('waiting for messages...')
     while True:
-        print('waiting for messages...')
         msg = receive_message(conn, Message)
-        print(msg.msg)
+        print(f"New message arrived: {msg.msg}")
 
 if __name__ == "__main__":
     main()
