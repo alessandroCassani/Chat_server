@@ -49,11 +49,13 @@ def main():
         while True:
             try:
                 data = input("Enter a message: \n")
-                parts = data.split(' ', 1)
-                receiver_id = int(parts[0])
-                message = parts[1]
+                data_chunked = data.split(' ', 1)
+                receiver_id = int(data_chunked[0])
+                message = data_chunked[1]
             except:
+                error = -1
                 message = "end"
+                msg = Message(fr=id, to=error, msg=message)
                 
             msg = Message(fr=id, to=receiver_id, msg=message)
             send_message(s, msg)
