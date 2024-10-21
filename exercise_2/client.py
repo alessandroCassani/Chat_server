@@ -1,6 +1,6 @@
 import socket
 from sys import argv
-from exercise_1.template_pb2 import Message, FastHandshake
+import template_pb2
 from threading import Thread
 
 
@@ -33,26 +33,27 @@ def main():
     except:
         host = host or "127.0.0.1"
         port = 8080
+        new_id = None
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((host, port))
         print("Connected to the server")
         
         if new_id:
-            handshake = FastHandshake(id=new_id,change_id = True)
+            handshake = template_pb2.FastHandshake(id=new_id,change_id = True)
             send_message(s, handshake)
         else:
-            handshake = FastHandshake(change_id = False)
+            handshake = template_pb2.FastHandshake(change_id = False)
             send_message(s, handshake)
         
-        handshake = receive_message(s, FastHandshake)
+        handshake = receive_message(s, template_pb2.FastHandshake)
         
         if handshake.change_id:
             print('new id accepted!')
             print(f"we are client #{handshake.change_id}")
             id = handshake.change_id
         else:
-            print('new id rejected!')
+            print('id autonoumously created')
             id = handshake.id
             
         if handshake.error:
@@ -69,9 +70,9 @@ def main():
             except:
                 error = -1
                 message = "end"
-                msg = Message(fr=id, to=error, msg=message)
+                msg = template_pb2.Message(fr=id, to=error, msg=message)
                 
-            msg = Message(fr=id, to=receiver_id, msg=message)
+            msg = template_pb2.Message(fr=id, to=receiver_id, msg=message)
             send_message(s, msg)
             
             if message == "end":
@@ -83,7 +84,7 @@ def main():
 def handle_incoming_messages(conn):
     print('waiting for messages...')
     while True:
-        msg = receive_message(conn, Message)
+        msg = receive_message(conn, template_pb2.Message)
         print(f"New message arrived: {msg.msg}")
 
 if __name__ == "__main__":

@@ -1,7 +1,7 @@
 import socket
 from sys import argv
 from threading import Thread
-from exercise_1.template_pb2 import Message, FastHandshake
+import template_pb2
 from queue import Queue
 
 CLIENTS = {}
@@ -34,19 +34,19 @@ def handle_client(conn: socket.socket, addr):
     CLIENTS[id] = conn
 
     try:
-        handshake_message = receive_message(conn, FastHandshake)
+        handshake_message = receive_message(conn, template_pb2.FastHandshake)
         
         if handshake_message.change_id:
             new_id = handshake_message.id
             if change_client_id(new_id, conn):
-                handshake = FastHandshake(id=new_id, error=False, change_id=True)
+                handshake = template_pb2.FastHandshake(id=new_id, error=False, change_id=True)
                 print(f"Client requested ID {new_id}. ID change successful from {addr}")
             else:
-                handshake = FastHandshake(id=id, error=False, change_id=False)
+                handshake = template_pb2.FastHandshake(id=id, error=False, change_id=False)
                 print(f"Client requested ID {new_id}. ID change failed, already in use.")
                 
         else:
-            handshake = FastHandshake(id=id, error=False, change_id=False)
+            handshake = template_pb2.FastHandshake(id=id, error=False, change_id=False)
             print(f"Client connected with default ID {id} from {addr}.")
 
         send_message(conn, handshake)
@@ -55,12 +55,12 @@ def handle_client(conn: socket.socket, addr):
 
     except Exception as e:
         print(f"Error handling client #{id}: {e}")
-        handshake_failed = FastHandshake(id=-1, error=True)
+        handshake_failed = template_pb2.FastHandshake(id=-1, error=True)
         send_message(conn, handshake_failed)
 
     try:
         while True:
-            msg = receive_message(conn, Message)
+            msg = receive_message(conn, template_pb2.Message)
             print(f"Message from {msg.fr} to {msg.to}: {msg.msg}")
 
             if msg.msg.lower() == "end":
