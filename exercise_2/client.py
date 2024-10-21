@@ -9,14 +9,12 @@ def send_message(conn, m):
     conn.sendall(len(serialized).to_bytes(4, byteorder="big"))
     conn.sendall(serialized)
 
-
 def receive_message(conn, m):
     msg = m()
     size = int.from_bytes(conn.recv(4), byteorder="big")
     data = conn.recv(size)
     msg.ParseFromString(data)
     return msg
-
 
 def main():
     host = None
@@ -92,7 +90,7 @@ def handle_incoming_messages(conn):
     print('waiting for messages...')
     while True:
         msg = receive_message(conn, template_pb2.Message)
-        print(f"New message arrived: {msg.msg}")
+        print(f"New message arrived: {msg.msg} from client #{msg.fr}")
 
 if __name__ == "__main__":
     main()
