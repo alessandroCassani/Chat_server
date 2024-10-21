@@ -61,16 +61,23 @@ def main():
             return
 
         Thread(target=handle_incoming_messages,args=(s,), daemon=True).start()
+        
         while True:
-            try:
-                data = input("Enter a message: \n")
-                data_chunked = data.split(' ', 1)
-                receiver_id = int(data_chunked[0])
-                message = data_chunked[1]
-            except:
-                error = -1
-                message = "end"
-                msg = template_pb2.Message(fr=id, to=error, msg=message)
+            while True:
+                try:
+                    data = input("Enter a message (format: <receiver_id> <message>): \n")
+                    data_chunked = data.split(' ', 1)
+                    
+                    if len(data_chunked) != 2:
+                        raise ValueError("Input must be in format '<receiver_id> <message>'")
+                    
+                    receiver_id = int(data_chunked[0])
+                    message = data_chunked[1]
+                    break
+                    
+                except ValueError as ve:
+                    print(f"Invalid input: {ve}")
+                    continue
                 
             msg = template_pb2.Message(fr=id, to=receiver_id, msg=message)
             send_message(s, msg)
