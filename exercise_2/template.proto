@@ -8,7 +8,7 @@ message Message {
   string msg = 3;
 }
 
-message FastHandshake {
+message Handshake {
   int64 id = 1;
   bool error = 2;
   bool change_id = 3;
