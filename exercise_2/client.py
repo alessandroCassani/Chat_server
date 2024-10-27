@@ -33,7 +33,7 @@ def main():
             port = int(argv[2])
             new_id = int(argv[3])
         else:
-            raise ValueError("Numero di argomenti non valido")
+            raise ValueError("argument's number not valid")
     except:
         host = host or "127.0.0.1"
         port = 8080
@@ -44,13 +44,13 @@ def main():
         print("Connected to the server")
         
         if new_id:
-            handshake = template_pb2.FastHandshake(id=new_id,change_id = True)
+            handshake = template_pb2.Handshake(id=new_id,change_id = True)
             send_message(s, handshake)
         else:
-            handshake = template_pb2.FastHandshake(change_id = False)
+            handshake = template_pb2.Handshake(change_id = False)
             send_message(s, handshake)
         
-        handshake = receive_message(s, template_pb2.FastHandshake)
+        handshake = receive_message(s, template_pb2.Handshake)
         
         if handshake.change_id:
             print('new id accepted!')

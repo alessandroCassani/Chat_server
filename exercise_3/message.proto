@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+message Message {
+    oneof msg {
+        string text_message = 1;
+        string acknowledgment = 2;
+    }
+    int64 sender_id = 3;
+    int64 destination_id = 4; // To specify where the message is headed
+}
