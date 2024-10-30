@@ -44,7 +44,8 @@ class Peer:
         if message.text_message == "CONNECT":
             print(f"Connecting to new peer: {addr}")
             self.connect_to_peer(*addr)
-        
+
+        # Handle messages directed to this peer
         if message.destination_id == self.peer_id:
             print(f"Message directed to this peer: {message.text_message}")
         else:
@@ -53,8 +54,10 @@ class Peer:
 
     def forward_message(self, message, sender_addr):
         """Forward a message to all peers except the original sender."""
+        print(f"Forwarding message: {message.text_message} to peers.")
         for peer_addr in self.peers:
-            if peer_addr != sender_addr:  
+            if peer_addr != sender_addr:
+                print(f"Forwarding to peer: {peer_addr}")
                 self.send_serialized_message(message, peer_addr)
 
     def send_serialized_message(self, message, peer_addr):
@@ -69,8 +72,10 @@ class Peer:
 
     def broadcast_message(self, message_text, destination_id):
         """Broadcast a message to all connected peers."""
+        print(f"Broadcasting message: {message_text} to all peers.")
         message = self.create_message(message_text, destination_id)
         for peer_addr in self.peers:
+            print(f"Sending to peer: {peer_addr}")
             self.send_serialized_message(message, peer_addr)
 
     def create_message(self, text, destination_id):
