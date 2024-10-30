@@ -16,8 +16,11 @@ class Peer:
         print(f"Peer {self.peer_id} started at {self.ip}:{self.port}")
 
     def generate_id(self, desired_id):
-        id_generator = snowflake.derive_id if desired_id is None else lambda: desired_id
-        return id_generator()
+        """Generate a unique ID for the peer."""
+        if desired_id is not None:
+            return desired_id
+        else:
+            return snowflake.derive_id()  
 
     def _start_server_thread(self):
         """Start a server thread for listening to incoming messages."""
@@ -72,7 +75,7 @@ class Peer:
 
     def broadcast_message(self, message_text, destination_id):
         """Broadcast a message to all connected peers."""
-        print(f"Broadcasting message: {message_text} to all peers.")
+        print(f"Broadcasting message: '{message_text}' to all peers")
         message = self.create_message(message_text, destination_id)
         for peer_addr in self.peers:
             print(f"Sending to peer: {peer_addr}")
