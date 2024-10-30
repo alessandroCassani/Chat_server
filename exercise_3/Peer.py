@@ -40,12 +40,17 @@ class Peer:
 
         print(f"Received message from {message.sender_id}: {message.text_message} (Destination: {message.destination_id})")
 
+        # Update peers list if the message is a connection request
+        if message.text_message == "CONNECT":
+            print(f"Connecting to new peer: {addr}")
+            self.connect_to_peer(*addr)
+        
         if message.destination_id == self.peer_id:
             print(f"Message directed to this peer: {message.text_message}")
         else:
             print(f"Message not intended for this peer. Forwarding to other peers.")
             self.forward_message(message, addr)
-            
+
     def forward_message(self, message, sender_addr):
         """Forward a message to all peers except the original sender."""
         for peer_addr in self.peers:
@@ -60,8 +65,7 @@ class Peer:
     def connect_to_peer(self, peer_ip, peer_port):
         """Add a new peer to the list of known peers."""
         self.peers.append((peer_ip, peer_port))
-        
-        print(f'peers list: {self.peers}')
+        print(f'Peer {self.peer_id}: Added peer {peer_ip}:{peer_port}. Current peers: {self.peers}')
 
     def broadcast_message(self, message_text, destination_id):
         """Broadcast a message to all connected peers."""
@@ -96,7 +100,7 @@ def main():
     # Initialize the peer
     peer = Peer(my_ip, my_port, desired_id)
 
-    # Connect to other peers
+    # Connect to other peers if specified
     for arg in sys.argv[2:]:
         if arg == '--desired-id':
             continue  # Skip the flag itself
@@ -109,14 +113,19 @@ def main():
             peer_ip = peer_ip_port[0]
             peer_port = int(peer_ip_port[1])
             peer.connect_to_peer(peer_ip, peer_port)
+
+            # Inform the peer about the new connection
+            connect_message = peer.create_message("CONNECT", peer.peer_id)
+            peer.send_serialized_message(connect_message, (peer_ip, peer_port))
         else:
             print(f"Invalid peer address format: {arg}. Expected format is ip:port.")
 
+    # Allow the user to send messages
     while True:
         msg_text = input("Enter message text to broadcast: ")
         destination_id = int(input("Enter destination ID: "))
         peer.broadcast_message(msg_text, destination_id)
 
-
 if __name__ == "__main__":
     main()
+
