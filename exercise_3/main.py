@@ -1,6 +1,5 @@
 import sys
-import Peer
-
+from Peer import Peer
 
 def main():
     if len(sys.argv) < 3:
