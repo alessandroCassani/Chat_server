@@ -45,18 +45,18 @@ class Peer:
         if message.text_message == "CONNECT":
             sender_ip = addr[0]
             sender_port = message.sender_port
+            print(f'Peer {self.peer_id}: Added peer {sender_ip}:{sender_port}. Current peers: {self.peers}')
             self.peers.append((sender_ip,sender_port))
             return
 
         if message.destination_id == self.peer_id:
             print(f"Message directed to this peer: {message.text_message}")
         else:
-            print(f"Message not intended for this peer. Forwarding to other peers.")
+            print(f"Message not mine, forwarding to other peers.")
             self.forward_message(message, addr)
 
     def forward_message(self, message, sender_addr):
         """Forward a message to all peers except the sender."""
-        print(f"Forwarding message: {message.text_message} to peers.")
         for peer_addr in self.peers:
             if peer_addr != sender_addr:
                 print(f"Forwarding to peer: {peer_addr}")
@@ -66,7 +66,6 @@ class Peer:
         """Send a serialized message in Protobuf format to a specific peer."""
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
             try:
-                print(f'Sending to peer at: {peer_addr}')
                 sock.sendto(message.SerializeToString(), peer_addr)
             except Exception as e:
                 print(f"Error sending message to {peer_addr}: {e}")
@@ -85,7 +84,6 @@ class Peer:
         print(f"Broadcasting message: '{message_text}' to all peers")
         message = self.create_message(message_text, destination_id)
         for peer_addr in self.peers:
-            print(f"Sending to peer: {peer_addr}")
             self.send_serialized_message(message, peer_addr)
 
     def create_message(self, text, destination_id):
