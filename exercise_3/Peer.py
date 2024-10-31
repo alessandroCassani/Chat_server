@@ -57,6 +57,7 @@ class Peer:
 
     def forward_message(self, message, sender_addr):
         """Forward a message to all peers except the sender."""
+
         for peer_addr in self.peers:
             if peer_addr != sender_addr:
                 print(f"Forwarding to peer: {peer_addr}")
