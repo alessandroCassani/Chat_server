@@ -46,7 +46,8 @@ class Peer:
         # Update peers list if the message is a connection request
         if message.text_message == "CONNECT":
             print(f"Connecting to new peer: {addr}")
-            self.connect_to_peer(*addr)
+            peer_ip, peer_port = addr 
+            self.connect_to_peer(peer_ip, peer_port)
 
         # Handle messages directed to this peer
         if message.destination_id == self.peer_id:
@@ -66,6 +67,8 @@ class Peer:
     def send_serialized_message(self, message, peer_addr):
         """Send a serialized Protobuf message to a specified peer address."""
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
+            sock.bind((self.ip, self.port))
+            print(f' PEER ADDR: {peer_addr}')
             sock.sendto(message.SerializeToString(), peer_addr)
 
     def connect_to_peer(self, peer_ip, peer_port):
@@ -113,7 +116,7 @@ def main():
         if arg == '--desired-id':
             continue  # Skip the flag itself
         if arg == str(desired_id):
-            continue  # Skip the desired ID value
+            continue  
 
         # Split the remaining arguments into IP and port
         peer_ip_port = arg.split(":")
