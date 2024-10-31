@@ -9,9 +9,9 @@ class Peer:
         self.ip = ip
         self.port = port
         self.peer_id = self.generate_id(desired_id)
-        self.peers = []
+        self.peers = []  # List of peers as (IP, port)
 
-        # Start a separate thread for handling incoming messages
+        # Start a separate thread to handle incoming messages
         self._start_server_thread()
         print(f"Peer {self.peer_id} started at {self.ip}:{self.port}")
 
@@ -20,34 +20,36 @@ class Peer:
         if desired_id is not None:
             return desired_id
         else:
-            return snowflake.derive_id()  
+            return snowflake.derive_id()
 
     def _start_server_thread(self):
-        """Start a server thread for listening to incoming messages."""
+        """Start a server thread to listen for incoming messages."""
         self.server_thread = threading.Thread(target=self.listen_for_messages)
-        self.server_thread.daemon = True  
+        self.server_thread.daemon = True
         self.server_thread.start()
 
     def listen_for_messages(self):
-        """Listen for incoming UDP messages on the peer’s socket."""
+        """Listen for incoming UDP messages on the peer's socket."""
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as server_socket:
             server_socket.bind((self.ip, self.port))
+            print(f"Listening for messages on {self.ip}:{self.port}")
             while True:
                 data, addr = server_socket.recvfrom(1024)
                 self.process_incoming_message(data, addr)
 
     def process_incoming_message(self, data, addr):
-        """Parse and handle incoming messages based on destination."""
+        """Parse and handle incoming messages based on the destination."""
         message = message_pb2.Message()
         message.ParseFromString(data)
 
-        print(f"Received message from {message.sender_id}: {message.text_message} (Destination: {message.destination_id})")
+        print(f"Received message from {message.sender_id}: {message.text_message}")
 
-        # Update peers list if the message is a connection request
+        # Handle connection messages
         if message.text_message == "CONNECT":
-            print(f"Connecting to new peer: {addr}")
-            peer_ip, peer_port = addr 
-            self.connect_to_peer(peer_ip, peer_port)
+            sender_ip = addr[0]
+            sender_port = message.sender_port
+            self.peers.append((sender_ip,sender_port))
+            return
 
         # Handle messages directed to this peer
         if message.destination_id == self.peer_id:
@@ -57,7 +59,7 @@ class Peer:
             self.forward_message(message, addr)
 
     def forward_message(self, message, sender_addr):
-        """Forward a message to all peers except the original sender."""
+        """Forward a message to all peers except the sender."""
         print(f"Forwarding message: {message.text_message} to peers.")
         for peer_addr in self.peers:
             if peer_addr != sender_addr:
@@ -65,19 +67,26 @@ class Peer:
                 self.send_serialized_message(message, peer_addr)
 
     def send_serialized_message(self, message, peer_addr):
-        """Send a serialized Protobuf message to a specified peer address."""
+        """Send a serialized message in Protobuf format to a specific peer."""
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
-            sock.bind((self.ip, self.port))
-            print(f' PEER ADDR: {peer_addr}')
-            sock.sendto(message.SerializeToString(), peer_addr)
+            try:
+                print(f'Sending to peer at: {peer_addr}')
+                sock.sendto(message.SerializeToString(), peer_addr)
+            except Exception as e:
+                print(f"Error sending message to {peer_addr}: {e}")
 
     def connect_to_peer(self, peer_ip, peer_port):
         """Add a new peer to the list of known peers."""
-        self.peers.append((peer_ip, peer_port))
-        print(f'Peer {self.peer_id}: Added peer {peer_ip}:{peer_port}. Current peers: {self.peers}')
+        if (peer_ip, peer_port) not in self.peers:
+            self.peers.append((peer_ip, peer_port))
+            print(f'Peer {self.peer_id}: Added peer {peer_ip}:{peer_port}. Current peers: {self.peers}')
+
+            # Notify the new peer about the connection
+            connect_message = self.create_connect_message("CONNECT", self.port)
+            self.send_serialized_message(connect_message, (peer_ip, peer_port))
 
     def broadcast_message(self, message_text, destination_id):
-        """Broadcast a message to all connected peers."""
+        """Send a message to all connected peers."""
         print(f"Broadcasting message: '{message_text}' to all peers")
         message = self.create_message(message_text, destination_id)
         for peer_addr in self.peers:
@@ -85,11 +94,19 @@ class Peer:
             self.send_serialized_message(message, peer_addr)
 
     def create_message(self, text, destination_id):
-        """Helper to create a Protobuf message with specified text and destination."""
+        """Create a Protobuf message with specified text and destination."""
         message = message_pb2.Message()
         message.text_message = text
         message.sender_id = self.peer_id
         message.destination_id = destination_id
+        return message
+    
+    def create_connect_message(self, text, sender_port):
+        """Create a Protobuf message with specified text and destination."""
+        message = message_pb2.Message()
+        message.text_message = text
+        message.sender_id = self.peer_id
+        message.sender_port = sender_port
         return message
 
 def main():
@@ -103,7 +120,7 @@ def main():
     my_port = int(my_address[1])
     desired_id = None
 
-    # Check for the desired ID flag and extract the ID
+    # Check for the desired ID and extract it
     if '--desired-id' in sys.argv:
         desired_id_index = sys.argv.index('--desired-id')
         desired_id = int(sys.argv[desired_id_index + 1])
@@ -118,16 +135,14 @@ def main():
         if arg == str(desired_id):
             continue  
 
-        # Split the remaining arguments into IP and port
+        # Split remaining arguments into IP and port
         peer_ip_port = arg.split(":")
+        print(peer_ip_port)
         if len(peer_ip_port) == 2:
             peer_ip = peer_ip_port[0]
             peer_port = int(peer_ip_port[1])
+            print(peer_port)
             peer.connect_to_peer(peer_ip, peer_port)
-
-            # Inform the peer about the new connection
-            connect_message = peer.create_message("CONNECT", peer.peer_id)
-            peer.send_serialized_message(connect_message, (peer_ip, peer_port))
         else:
             print(f"Invalid peer address format: {arg}. Expected format is ip:port.")
 
@@ -139,4 +154,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

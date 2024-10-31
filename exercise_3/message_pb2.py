@@ -24,13 +24,13 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\rmessage.proto\"m\n\x07Message\x12\x16\n\x0ctext_message\x18\x01 \x01(\tH\x00\x12\x18\n\x0e\x61\x63knowledgment\x18\x02 \x01(\tH\x00\x12\x11\n\tsender_id\x18\x03 \x01(\x03\x12\x16\n\x0e\x64\x65stination_id\x18\x04 \x01(\x03\x42\x05\n\x03msgb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\rmessage.proto\"\x82\x01\n\x07Message\x12\x16\n\x0ctext_message\x18\x01 \x01(\tH\x00\x12\x18\n\x0e\x61\x63knowledgment\x18\x02 \x01(\tH\x00\x12\x11\n\tsender_id\x18\x03 \x01(\x03\x12\x16\n\x0e\x64\x65stination_id\x18\x04 \x01(\x03\x12\x13\n\x0bsender_port\x18\x05 \x01(\x03\x42\x05\n\x03msgb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'message_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_MESSAGE']._serialized_start=17
-  _globals['_MESSAGE']._serialized_end=126
+  _globals['_MESSAGE']._serialized_start=18
+  _globals['_MESSAGE']._serialized_end=148
 # @@protoc_insertion_point(module_scope)
