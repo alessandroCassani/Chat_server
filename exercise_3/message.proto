@@ -6,5 +6,6 @@ message Message {
         string acknowledgment = 2;
     }
     int64 sender_id = 3;
-    int64 destination_id = 4; // To specify where the message is headed
+    int64 destination_id = 4; 
+    int64 sender_port = 5;
 }
