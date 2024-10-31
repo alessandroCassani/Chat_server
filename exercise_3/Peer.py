@@ -1,6 +1,5 @@
 import threading
 import socket
-import sys
 import snowflake
 import message_pb2 as message_pb2
 
@@ -9,7 +8,7 @@ class Peer:
         self.ip = ip
         self.port = port
         self.peer_id = self.generate_id(desired_id)
-        self.peers = []  # List of peers as (IP, port)
+        self.peers = []  
 
         # Start a separate thread to handle incoming messages
         self._start_server_thread()
@@ -49,7 +48,6 @@ class Peer:
             self.peers.append((sender_ip,sender_port))
             return
 
-        # Handle messages directed to this peerr
         if message.destination_id == self.peer_id:
             print(f"Message directed to this peer: {message.text_message}")
         else:
@@ -79,7 +77,6 @@ class Peer:
             self.peers.append((peer_ip, peer_port))
             print(f'Peer {self.peer_id}: Added peer {peer_ip}:{peer_port}. Current peers: {self.peers}')
 
-            # Notify the new peer about the connection
             connect_message = self.create_connect_message("CONNECT", self.port)
             self.send_serialized_message(connect_message, (peer_ip, peer_port))
 
@@ -106,49 +103,5 @@ class Peer:
         message.sender_id = self.peer_id
         message.sender_port = sender_port
         return message
-
-def main():
-    if len(sys.argv) < 3:
-        print("Usage: python Peer.py [my ip]:[my port] --desired-id [my id] [peer ip]:[peer port] ...")
-        sys.exit(1)
-
-    # Parse the local peer address
-    my_address = sys.argv[1].split(":")
-    my_ip = my_address[0]
-    my_port = int(my_address[1])
-    desired_id = None
-
-    # Check for the desired ID and extract it
-    if '--desired-id' in sys.argv:
-        desired_id_index = sys.argv.index('--desired-id')
-        desired_id = int(sys.argv[desired_id_index + 1])
-
-    # Initialize the peer
-    peer = Peer(my_ip, my_port, desired_id)
-
-    # Connect to other peers if specified
-    for arg in sys.argv[2:]:
-        if arg == '--desired-id':
-            continue  # Skip the flag itself
-        if arg == str(desired_id):
-            continue  
-
-        # Split remaining arguments into IP and port
-        peer_ip_port = arg.split(":")
-        print(peer_ip_port)
-        if len(peer_ip_port) == 2:
-            peer_ip = peer_ip_port[0]
-            peer_port = int(peer_ip_port[1])
-            print(peer_port)
-            peer.connect_to_peer(peer_ip, peer_port)
-        else:
-            print(f"Invalid peer address format: {arg}. Expected format is ip:port.")
-
-    # Allow the user to send messages
-    while True:
-        msg_text = input("Enter message text to broadcast: ")
-        destination_id = int(input("Enter destination ID: "))
-        peer.broadcast_message(msg_text, destination_id)
-
-if __name__ == "__main__":
-    main()
+    
+    
