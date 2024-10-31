@@ -42,8 +42,6 @@ class Peer:
         message = message_pb2.Message()
         message.ParseFromString(data)
 
-        print(f"Received message from {message.sender_id}: {message.text_message}")
-
         # Handle connection messages
         if message.text_message == "CONNECT":
             sender_ip = addr[0]
@@ -51,7 +49,7 @@ class Peer:
             self.peers.append((sender_ip,sender_port))
             return
 
-        # Handle messages directed to this peer
+        # Handle messages directed to this peerr
         if message.destination_id == self.peer_id:
             print(f"Message directed to this peer: {message.text_message}")
         else:
