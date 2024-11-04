@@ -60,20 +60,17 @@ class Peer:
             ack_message = self.create_ack_message(message.sender_id)
             self.send_serialized_message(ack_message, addr)
         else:
-            print(f"Message not mine, forwarding to other peers.")
             self.forward_message(message, addr)
 
     def forward_message(self, message, sender_addr):
         """Forward a message to all peers except the sender."""
         for peer_addr in self.peers:
             if peer_addr != sender_addr:
-                print(f"Forwarding to peer: {peer_addr}")
                 self.send_serialized_message(message, peer_addr)
 
     def send_serialized_message(self, message, peer_addr):
         """Send a serialized message in Protobuf format to a specific peer using the shared socket."""
         try:
-            print(f'Sending message to peer address: {peer_addr}')
             self.socket.sendto(message.SerializeToString(), peer_addr)
         except Exception as e:
             print(f"Error sending message to {peer_addr}: {e}")
