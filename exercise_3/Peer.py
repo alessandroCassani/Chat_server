@@ -50,9 +50,15 @@ class Peer:
             self.peers.append((sender_ip, sender_port))
             print(f'Peer {self.peer_id}: Added peer {sender_ip}:{sender_port}. Current peers: {self.peers}')
             return
+        
+        if message.text_message == "ACK":
+            print(f"ACK received from {addr}: Message correctly received.")
+            return
 
         if message.destination_id == self.peer_id:
             print(f"Message directed to this peer: {message.text_message}")
+            ack_message = self.create_ack_message()
+            self.send_serialized_message(ack_message, addr)
         else:
             print(f"Message not mine, forwarding to other peers.")
             self.forward_message(message, addr)
