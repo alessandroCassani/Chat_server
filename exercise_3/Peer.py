@@ -52,7 +52,7 @@ class Peer:
             return
         
         if message.text_message == "ACK" and message.destination_id == self.peer_id:
-            print(f"ACK received from {addr}: Message correctly received.")
+            print(f"\n ACK received from {addr}")
             return
 
         if message.destination_id == self.peer_id:
