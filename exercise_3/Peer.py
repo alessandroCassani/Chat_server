@@ -51,13 +51,13 @@ class Peer:
             print(f'Peer {self.peer_id}: Added peer {sender_ip}:{sender_port}. Current peers: {self.peers}')
             return
         
-        if message.text_message == "ACK":
+        if message.text_message == "ACK" and message.destination_id == self.peer_id:
             print(f"ACK received from {addr}: Message correctly received.")
             return
 
         if message.destination_id == self.peer_id:
             print(f"Message directed to this peer: {message.text_message}")
-            ack_message = self.create_ack_message()
+            ack_message = self.create_ack_message(message.sender_id)
             self.send_serialized_message(ack_message, addr)
         else:
             print(f"Message not mine, forwarding to other peers.")
@@ -102,11 +102,12 @@ class Peer:
         message.destination_id = destination_id
         return message
     
-    def create_ack_message(self):
+    def create_ack_message(self, destination_id):
         """Create an acknowledgment message."""
         ack_message = message_pb2.Message()
         ack_message.text_message = "ACK"
         ack_message.sender_id = self.peer_id
+        ack_message.destination_id = destination_id
         return ack_message
     
     def create_connect_message(self, text, sender_port):
