@@ -102,6 +102,13 @@ class Peer:
         message.destination_id = destination_id
         return message
     
+    def create_ack_message(self):
+        """Create an acknowledgment message."""
+        ack_message = message_pb2.Message()
+        ack_message.text_message = "ACK"
+        ack_message.sender_id = self.peer_id
+        return ack_message
+    
     def create_connect_message(self, text, sender_port):
         """Create a Protobuf message for connection setup."""
         message = message_pb2.Message()
