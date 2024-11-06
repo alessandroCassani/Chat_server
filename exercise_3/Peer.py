@@ -5,6 +5,8 @@ import message_pb2 as message_pb2
 
 id_list = []
 lock = threading.Lock()
+CONNECT_MESSAGE = 'CONNECT'
+ACK_MESSAGE = 'ACK'
 
 class Peer:
     
@@ -46,18 +48,18 @@ class Peer:
         message = message_pb2.Message()
         message.ParseFromString(data)
 
-        if message.text_message == "CONNECT":
+        if message.text_message == CONNECT_MESSAGE:
             sender_ip = addr[0]
             sender_port = message.sender_port
             self.peers.append((sender_ip, sender_port))
             return
         
-        if message.text_message == "ACK" and message.destination_id == self.peer_id:
+        if message.text_message == ACK_MESSAGE and message.destination_id == self.peer_id:
             print(f"\nACK received from {addr}")
             return
 
         if message.destination_id == self.peer_id:
-            print(f"\nMessage directed to this peer: {message.text_message}")
+            print(f"\nMessage received: {message.text_message}")
             ack_message = self.create_ack_message(message.sender_id)
             self.send_serialized_message(ack_message, addr)
         else:
@@ -65,7 +67,7 @@ class Peer:
 
     def forward_message(self, message, sender_addr):
         for peer_addr in self.peers:
-            if peer_addr != sender_addr:
+            if peer_addr != sender_addr:  # do not forward back to the sender
                 self.send_serialized_message(message, peer_addr)
 
     def send_serialized_message(self, message, peer_addr):
@@ -77,7 +79,7 @@ class Peer:
     def connect_to_peer(self, peer_ip, peer_port):
         if (peer_ip, peer_port) not in self.peers:
             self.peers.append((peer_ip, peer_port))
-            connect_message = self.create_connect_message("CONNECT", self.port)
+            connect_message = self.create_connect_message(CONNECT_MESSAGE, self.port)
             self.send_serialized_message(connect_message, (peer_ip, peer_port))
 
     def broadcast_message(self, message_text, destination_id):
@@ -94,7 +96,7 @@ class Peer:
     
     def create_ack_message(self, destination_id):
         ack_message = message_pb2.Message()
-        ack_message.text_message = "ACK"
+        ack_message.text_message = ACK_MESSAGE
         ack_message.sender_id = self.peer_id
         ack_message.destination_id = destination_id
         return ack_message
