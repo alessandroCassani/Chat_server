@@ -4,6 +4,7 @@ import snowflake
 import message_pb2 as message_pb2
 
 id_list = []
+lock = threading.Lock()
 
 class Peer:
     
@@ -25,7 +26,8 @@ class Peer:
                 print('id already in use')
                 return snowflake.derive_id()
             else:
-                id_list.append(desired_id)
+                with lock:
+                    id_list.append(desired_id)
                 return desired_id
         else:
             return snowflake.derive_id()

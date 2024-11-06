@@ -12,14 +12,12 @@ def send_message(conn, m):
     conn.sendall(len(serialized).to_bytes(4, byteorder="big"))
     conn.sendall(serialized)
 
-
 def receive_message(conn, m):
     msg = m()
     size = int.from_bytes(conn.recv(4), byteorder="big")
     data = conn.recv(size)
     msg.ParseFromString(data)
     return msg
-
 
 def handle_client(conn: socket.socket, addr):
     global LAST_ID
@@ -55,7 +53,6 @@ def handle_client(conn: socket.socket, addr):
         CLIENTS.pop(id, None)
         conn.close()
 
-
 def loop_main(port):
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -71,7 +68,6 @@ def loop_main(port):
                     break
     except:
         pass
-
 
 def main():
     global CLIENTS
