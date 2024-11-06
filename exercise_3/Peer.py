@@ -38,7 +38,6 @@ class Peer:
         self.server_thread.start()
 
     def listen_for_messages(self):
-        print(f"Listening for messages on {self.ip}:{self.port}")
         while True:
             data, addr = self.socket.recvfrom(1024)
             self.process_incoming_message(data, addr)
@@ -51,7 +50,7 @@ class Peer:
             sender_ip = addr[0]
             sender_port = message.sender_port
             self.peers.append((sender_ip, sender_port))
-            print(f'Peer {self.peer_id}: Added peer {sender_ip}:{sender_port}. Current peers: {self.peers}')
+            #print(f'Peer {self.peer_id}: Added peer {sender_ip}:{sender_port}. Current peers: {self.peers}')
             return
         
         if message.text_message == "ACK" and message.destination_id == self.peer_id:
@@ -79,7 +78,7 @@ class Peer:
     def connect_to_peer(self, peer_ip, peer_port):
         if (peer_ip, peer_port) not in self.peers:
             self.peers.append((peer_ip, peer_port))
-            print(f'\nPeer {self.peer_id}: Added peer {peer_ip}:{peer_port}. Current peers: {self.peers}')
+            #print(f'\nPeer {self.peer_id}: Added peer {peer_ip}:{peer_port}. Current peers: {self.peers}')
 
             connect_message = self.create_connect_message("CONNECT", self.port)
             self.send_serialized_message(connect_message, (peer_ip, peer_port))

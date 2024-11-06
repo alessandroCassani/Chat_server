@@ -3,7 +3,6 @@ from Peer import Peer
 
 def main():
     if len(sys.argv) < 3:
-        print("Usage: python Peer.py [my ip]:[my port] --desired-id [my id] [peer ip]:[peer port] ...")
         sys.exit(1)
 
     my_address = sys.argv[1].split(":")
@@ -25,11 +24,9 @@ def main():
             continue  
 
         peer_ip_port = arg.split(":")
-        print(peer_ip_port)
         if len(peer_ip_port) == 2:
             peer_ip = peer_ip_port[0]
             peer_port = int(peer_ip_port[1])
-            print(peer_port)
             peer.connect_to_peer(peer_ip, peer_port)
         else:
             print(f"Invalid peer address format: {arg}. Expected format is ip:port.")
