@@ -3,7 +3,10 @@ import socket
 import snowflake
 import message_pb2 as message_pb2
 
+id_list = []
+
 class Peer:
+    
     def __init__(self, ip, port, desired_id=None):
         self.ip = ip
         self.port = port
@@ -18,7 +21,12 @@ class Peer:
 
     def generate_id(self, desired_id):
         if desired_id is not None:
-            return desired_id
+            if desired_id in id_list:
+                print('id already in use')
+                return snowflake.derive_id()
+            else:
+                id_list.append(desired_id)
+                return desired_id
         else:
             return snowflake.derive_id()
 

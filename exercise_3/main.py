@@ -6,20 +6,18 @@ def main():
         print("Usage: python Peer.py [my ip]:[my port] --desired-id [my id] [peer ip]:[peer port] ...")
         sys.exit(1)
 
-    # Parse the local peer address
     my_address = sys.argv[1].split(":")
     my_ip = my_address[0]
     my_port = int(my_address[1])
     desired_id = None
 
-    # Check for the desired ID and extract it
     if '--desired-id' in sys.argv:
         desired_id_index = sys.argv.index('--desired-id')
         desired_id = int(sys.argv[desired_id_index + 1])
 
     peer = Peer(my_ip, my_port, desired_id)
 
-    # Connect to other peers if specified
+    # Connect to other peers 
     for arg in sys.argv[2:]:
         if arg == '--desired-id':
             continue 
