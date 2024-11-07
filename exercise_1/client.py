@@ -1,6 +1,6 @@
 import socket
 from sys import argv
-from exercise_1.template_pb2 import Message, FastHandshake
+import template_pb2 as template_pb2
 from threading import Thread
 
 
@@ -36,8 +36,7 @@ def main():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((host, port))
         print("Connected to the server")
-        # Wait for the server to send the FastHandshake message
-        handshake = receive_message(s, FastHandshake)
+        handshake = receive_message(s, template_pb2.FastHandshake)
         if handshake.error:
             print("Server rejected the connection")
             return
@@ -55,9 +54,9 @@ def main():
             except:
                 error = -1
                 message = "end"
-                msg = Message(fr=id, to=error, msg=message)
+                msg = template_pb2.Message(fr=id, to=error, msg=message)
                 
-            msg = Message(fr=id, to=receiver_id, msg=message)
+            msg = template_pb2.Message(fr=id, to=receiver_id, msg=message)
             send_message(s, msg)
             
             if message == "end":
@@ -69,7 +68,7 @@ def main():
 def handle_incoming_messages(conn):
     print('waiting for messages...')
     while True:
-        msg = receive_message(conn, Message)
+        msg = receive_message(conn, template_pb2.Message)
         print(f"New message arrived: {msg.msg}")
 
 if __name__ == "__main__":

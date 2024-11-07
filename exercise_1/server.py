@@ -1,7 +1,7 @@
 import socket
 from sys import argv
 from threading import Thread
-from exercise_1.template_pb2 import Message, FastHandshake
+import template_pb2 as template_pb2
 
 CLIENTS = {}
 LAST_ID = 0
@@ -26,12 +26,12 @@ def handle_client(conn: socket.socket, addr):
     CLIENTS[id] = conn
 
     try:
-        handshake = FastHandshake(id=id, error=False)
+        handshake = template_pb2.FastHandshake(id=id, error=False)
         send_message(conn, handshake)
         print(f"Client #{id} connected from {addr}")
 
         while True:
-            msg = receive_message(conn, Message)
+            msg = receive_message(conn, template_pb2.Message)
             print(f"Message from {msg.fr} to {msg.to}: {msg.msg}")
 
             if msg.msg.lower() == "end":
